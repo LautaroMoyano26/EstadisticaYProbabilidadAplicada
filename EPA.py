@@ -1,7 +1,7 @@
 import statistics
 import math
+import scipy.integrate as integrate
 from tabulate import tabulate
-import scipy.stats as stats
 
 # Funciones estadísticas.
 
@@ -78,38 +78,7 @@ def frecuencia_porcentual_acumulada(lista):
     for clave, valor in sorted(frec_porcent.items()):
         acumulado += valor
         frec_porcent_acum[clave] = f"{round(acumulado, 4)}%"
-    return frec_porcent_acumulada
-
-# Función para calcular combinaciones C(n, k)
-def combinacion(n, k):
-    return math.factorial(n) // (math.factorial(k) * math.factorial(n - k))
-
-# Función para la distribución binomial
-def distribucion_binomial(n, p, k):
-    combinaciones = combinacion(n, k)
-    probabilidad = combinaciones * (p ** k) * ((1 - p) ** (n - k))
-    return probabilidad
-
-# Función para la distribución de Poisson
-def distribucion_poisson(lambd, k):
-    probabilidad = (lambd ** k) * (math.e ** -lambd) / math.factorial(k)
-    return probabilidad
-
-# Función para la distribución hipergeométrica
-def distribucion_hipergeometrica(n, M, N, k):
-    probabilidad = (combinacion(M, k) * combinacion(N - M, n - k)) / combinacion(N, n)
-    return probabilidad
-
-# Función para la distribución normal (gaussiana)
-def distribucion_normal(x, mu, sigma):
-    coeficiente = 1 / (2 * math.pi * (sigma ** 2)) ** 0.5
-    exponente = -((x - mu) ** 2) / (2 * sigma ** 2)
-    densidad = coeficiente ** exponente
-    return densidad
-
-#Obtener probabilidad acumulada desde menos infinito hasta x, que es la integral de la función de densidad de probabilidad hasta ese punto.
-def distribucion_normal_cdf(x, mu, sigma):
-    return stats.norm.cdf(x, loc=mu, scale=sigma)
+    return frec_porcent_acum
 
 def coeficiente_curtosis(lista):
     n = len(lista)
@@ -135,94 +104,144 @@ def menu_estadistico(numeros):
             print("7. Visualizar FRECUENCIA RELATIVA.")
             print("8. Visualizar FRECUENCIA PORCENTUAL.")
             print("9. Visualizar FRECUENCIA ABSOLUTA ACUMULADA.")
-            print("10. Visualizar FRECUENCIA RELATIVA ACUMULADA.")
             print("11. Visualizar FRECUENCIA PORCENTUAL ACUMULADA.")
-            print("12. Calcular y mostrar el COEFICIENTE DE CURTOSIS.")
-            print("0. Regresar al menú principal\n")
-
-            opciones = input("Ingrese los números de las opciones que desea visualizar, separados por comas (por ejemplo: 1,2,3): ")
-            opciones = [opcion.strip() for opcion in opciones.split(',')]
-
-            if '0' in opciones:
-                return
-
+            print("12. Visualizar COEFICIENTE DE CURTOSIS.")
+            print("13. Visualizar todos los cálculos estadísticos.")
+            print("14. Salir del menú estadístico.")
+            opciones = input("Ingrese las opciones deseadas (separadas por comas): ")
+            opciones = [int(opcion) for opcion in opciones.split(",")]
+            resultados = []
             for opcion in opciones:
-                if opcion == '1':
-                    print(tabulate([["MEDIA", calcular_media(numeros)]], headers=["Operación", "Resultado"], tablefmt="grid"))
-                elif opcion == '2':
-                    moda, frecuencia = calcular_moda(numeros)
+                if opcion == 1:
+                    resultado = calcular_media(numeros)
+                    resultados.append(["MEDIA", resultado])
+                elif opcion == 2:
+                    moda, frecuencia_maxima = calcular_moda(numeros)
                     if moda is None:
-                        print("No hay moda en los datos.")
+                        resultados.append(["MODA", "No hay moda"])
                     else:
-                        print(tabulate([["MODA", f"{moda} (Frecuencia: {frecuencia})"]], headers=["Operación", "Resultado"], tablefmt="grid"))
-                elif opcion == '3':
-                    print(tabulate([["MEDIANA", calcular_mediana(numeros)]], headers=["Operación", "Resultado"], tablefmt="grid"))
-                elif opcion == '4':
-                    print(tabulate([["DESVIACIÓN ESTÁNDAR", calcular_desviacion(numeros)]], headers=["Operación", "Resultado"], tablefmt="grid"))
-                elif opcion == '5':
-                    print(tabulate([["VARIANZA", calcular_varianza(numeros)]], headers=["Operación", "Resultado"], tablefmt="grid"))
-                elif opcion == '6':
-                    print(tabulate([["FRECUENCIA ABSOLUTA", frecuencia_absoluta(numeros)]], headers=["Operación", "Resultado"], tablefmt="grid"))
-                elif opcion == '7':
-                    print(tabulate([["FRECUENCIA RELATIVA", frecuencia_relativa(numeros)]], headers=["Operación", "Resultado"], tablefmt="grid"))
-                elif opcion == '8':
-                    print(tabulate([["FRECUENCIA PORCENTUAL", frecuencia_porcentual(numeros)]], headers=["Operación", "Resultado en porcentajes (%)"], tablefmt="grid"))
-                elif opcion == '9':
-                    print(tabulate([["FRECUENCIA ABSOLUTA ACUMULADA", frecuencia_absoluta_acumulada(numeros)]], headers=["Operación", "Resultado"], tablefmt="grid"))
-                elif opcion == '10':
-                    print(tabulate([["FRECUENCIA RELATIVA ACUMULADA", frecuencia_relativa_acumulada(numeros)]], headers=["Operación", "Resultado"], tablefmt="grid"))
-                elif opcion == '11':
-                    print(tabulate([["FRECUENCIA PORCENTUAL ACUMULADA", frecuencia_porcentual_acumulada(numeros)]], headers=["Operación", "Resultado"], tablefmt="grid"))
-                elif opcion == '12':
-                    print(tabulate([["COEFICIENTE DE CURTOSIS", coeficiente_curtosis(numeros)]], headers=["Operación", "Resultado"], tablefmt="grid"))
+                        resultados.append(["MODA", moda])
+                elif opcion == 3:
+                    resultado = calcular_mediana(numeros)
+                    resultados.append(["MEDIANA", resultado])
+                elif opcion == 4:
+                    resultado = calcular_desviacion(numeros)
+                    resultados.append(["DESVIACIÓN ESTÁNDAR", resultado])
+                elif opcion == 5:
+                    resultado = calcular_varianza(numeros)
+                    resultados.append(["VARIANZA", resultado])
+                elif opcion == 6:
+                    resultado = frecuencia_absoluta(numeros)
+                    resultados.append(["FRECUENCIA ABSOLUTA", resultado])
+                elif opcion == 7:
+                    resultado = frecuencia_relativa(numeros)
+                    resultados.append(["FRECUENCIA RELATIVA", resultado])
+                elif opcion == 8:
+                    resultado = frecuencia_porcentual(numeros)
+                    resultados.append(["FRECUENCIA PORCENTUAL", resultado])
+                elif opcion == 9:
+                    resultado = frecuencia_absoluta_acumulada(numeros)
+                    resultados.append(["FRECUENCIA ABSOLUTA ACUMULADA", resultado])
+                elif opcion == 10:
+                    resultado = frecuencia_relativa_acumulada(numeros)
+                    resultados.append(["FRECUENCIA RELATIVA ACUMULADA", resultado])
+                elif opcion == 11:
+                    resultado = frecuencia_porcentual_acumulada(numeros)
+                    resultados.append(["FRECUENCIA PORCENTUAL ACUMULADA", resultado])
+                elif opcion == 12:
+                    resultado = coeficiente_curtosis(numeros)
+                    resultados.append(["COEFICIENTE DE CURTOSIS", resultado])
+                elif opcion == 13:
+                    resultados.append(["MEDIA", calcular_media(numeros)])
+                    resultados.append(["MODA", calcular_moda(numeros)])
+                    resultados.append(["MEDIANA", calcular_mediana(numeros)])
+                    resultados.append(["DESVIACIÓN ESTÁNDAR", calcular_desviacion(numeros)])
+                    resultados.append(["VARIANZA", calcular_varianza(numeros)])
+                    resultados.append(["FRECUENCIA ABSOLUTA", frecuencia_absoluta(numeros)])
+                    resultados.append(["FRECUENCIA RELATIVA", frecuencia_relativa(numeros)])
+                    resultados.append(["FRECUENCIA PORCENTUAL", frecuencia_porcentual(numeros)])
+                    resultados.append(["FRECUENCIA ABSOLUTA ACUMULADA", frecuencia_absoluta_acumulada(numeros)])
+                    resultados.append(["FRECUENCIA RELATIVA ACUMULADA", frecuencia_relativa_acumulada(numeros)])
+                    resultados.append(["FRECUENCIA PORCENTUAL ACUMULADA", frecuencia_porcentual_acumulada(numeros)])
+                    resultados.append(["COEFICIENTE DE CURTOSIS", coeficiente_curtosis(numeros)])
+                elif opcion == 14:
+                    break
                 else:
-                    print(f"Opción {opcion} no válida.")
+                    print("Opción no válida. Por favor, ingrese una opción válida.")
+            print(tabulate(resultados, headers=["Cálculo", "Resultado"], tablefmt="grid"))
         except ValueError:
-            print("Entrada no válida. Por favor, ingrese opciones válidas.")
+            print("Error: Por favor, ingrese una opción válida.")
+
+def distribucion_binomial(n, p, k):
+    return math.comb(n, k) * (p ** k) * ((1 - p) ** (n - k))
+
+def distribucion_hipergeometrica(n, M, N, k):
+    return (math.comb(M, k) * math.comb(N - M, n - k)) / math.comb(N, n)
+
+def distribucion_normal(x, mu, sigma):
+    coeficiente = 1 / (2 * math.pi * (sigma ** 2)) ** 0.5
+    exponente = -((x - mu) ** 2) / (2 * sigma ** 2)
+    densidad = coeficiente ** exponente
+    return densidad
+
+def calcular_integral(mu, sigma, primer_parametro, segundo_parametro):
+    integral, error = integrate.quad(distribucion_normal, primer_parametro, segundo_parametro, args=(mu, sigma))
+    return integral
+def distribucion_poisson(lambda_, k):
+    return (lambda_ ** k) * (math.e ** (-lambda_)) / math.factorial(k)
 
 def menu_distribuciones():
     while True:
         try:
-            print("\nDistribuciones - Seleccione una opción:")
+            print("\nDistribuciones - Seleccione la distribución deseada:")
             print("1. Distribución Binomial.")
-            print("2. Distribución de Poisson.")
-            print("3. Distribución Hipergeométrica.")
-            print("4. Distribución Normal (Gaussiana).")
-            print("0. Regresar al menú principal\n")
-
-            opcion = int(input("Ingrese el número de la opción que desea utilizar: "))
-            if opcion == 0:
-                return
-            elif opcion == 1:
+            print("2. Distribución Hipergeométrica.")
+            print("3. Distribución Normal.")
+            print("4. Distribución de Poisson.")
+            print("5. Salir del menú de distribuciones.")
+            opcion = int(input("Ingrese la opción deseada: "))
+            if opcion == 1:
                 n = int(input("Ingrese el número de ensayos (n): "))
                 p = float(input("Ingrese la probabilidad de éxito (p): "))
-                k = int(input("Ingrese el número de éxitos deseados (k): "))
+                k = int(input("Ingrese el número de éxitos (k): "))
                 resultado = distribucion_binomial(n, p, k)
-                print(tabulate([["PROBABILIDAD BINOMIAL", resultado]], headers=["Operación", "Resultado"], tablefmt="grid"))
+                print(f"La probabilidad de obtener {k} éxitos en {n} ensayos con una probabilidad de éxito de {p} es {resultado:.4f}.")
             elif opcion == 2:
-                lambd = float(input("Ingrese el valor de lambda (λ): "))
-                k = int(input("Ingrese el número de ocurrencias deseadas (k): "))
-                resultado = distribucion_poisson(lambd, k)
-                print(tabulate([["PROBABILIDAD DE POISSON", resultado]], headers=["Operación", "Resultado"], tablefmt="grid"))
-            elif opcion == 3:
-                n = int(input("Ingrese el tamaño de la muestra (n): "))
-                M = int(input("Ingrese el número de éxitos en la población (M): "))
-                N = int(input("Ingrese el tamaño de la población (N): "))
-                k = int(input("Ingrese el número de éxitos deseados en la muestra (k): "))
+                n = int(input("Ingrese el número de ensayos (n): "))
+                M = int(input("Ingrese el número de elementos favorables (M): "))
+                N = int(input("Ingrese el número total de elementos (N): "))
+                k = int(input("Ingrese el número de elementos favorables seleccionados (k): "))
                 resultado = distribucion_hipergeometrica(n, M, N, k)
-                print(tabulate([["PROBABILIDAD HIPERGEOMÉTRICA", resultado]], headers=["Operación", "Resultado"], tablefmt="grid"))
-            elif opcion == 4:
+                print(f"La probabilidad de seleccionar {k} elementos favorables en {n} ensayos de un conjunto de {N} elementos con {M} favorables es {resultado:.4f}.")
+            elif opcion == 3:
                 mu = float(input("Ingrese la media (μ): "))
                 sigma = float(input("Ingrese la desviación estándar (σ > 0): "))
                 x = float(input("Ingrese el valor de x para el cual desea calcular la función de densidad: "))
-                resultado = distribucion_normal_cdf(x, mu, sigma)
-                print(tabulate([["DISTRIBUCIÓN NORMAL", resultado]], headers=["Operación", "Resultado"], tablefmt="grid"))
+                # Calcular la función de densidad
+                resultado = distribucion_normal(x, mu, sigma)
+                # Pedir los límites de integración para calcular la integral
+                primer_parametro = float(input("Ingrese el primer parámetro de integración: "))
+                segundo_parametro = float(input("Ingrese el segundo parámetro de integración: "))
+    
+                # Calcular la integral
+                resultado_integral = calcular_integral(mu, sigma, primer_parametro, segundo_parametro)
+                # Mostrar el resultado en una tabla
+                print(tabulate([["DENSIDAD NORMAL", resultado],
+                                ["INTEGRAL", resultado_integral]], 
+                                headers=["Operación", "Resultado"], 
+                                tablefmt="grid"))
+            elif opcion == 4:
+                lambda_ = float(input("Ingrese la tasa de llegada (λ): "))
+                k = int(input("Ingrese el número de eventos (k): "))
+                resultado = distribucion_poisson(lambda_, k)
+                print(f"La probabilidad de que ocurran {k} eventos con una tasa de llegada de {lambda_} es {resultado:.4f}.")
+            elif opcion == 5:
+                break
             else:
-                print("Opción no válida. Intente nuevamente o ingrese 0 para regresar al menú principal.")
+                print("Opción no válida. Por favor, ingrese una opción válida.")
         except ValueError:
+            print("Error: Por favor, ingrese una opción válida.")
             
-            print("Entrada no válida. Por favor, ingrese un número entero.")
-
 def ingresar_datos():
     cantidad = 0
     numeros = []
