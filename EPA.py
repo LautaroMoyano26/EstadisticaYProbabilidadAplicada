@@ -1,6 +1,6 @@
 import statistics
 import math
-import scipy.integrate as integrate
+from scipy.integrate import quad
 from tabulate import tabulate
 
 # Funciones estadísticas.
@@ -181,11 +181,13 @@ def distribucion_hipergeometrica(n, M, N, k):
 def distribucion_normal(x, mu, sigma):
     coeficiente = 1 / (2 * math.pi * (sigma ** 2)) ** 0.5
     exponente = -((x - mu) ** 2) / (2 * sigma ** 2)
-    densidad = coeficiente ** exponente
+    densidad = coeficiente * math.exp(exponente)
     return densidad
 
 def calcular_integral(mu, sigma, primer_parametro, segundo_parametro):
-    integral, error = integrate.quad(distribucion_normal, primer_parametro, segundo_parametro, args=(mu, sigma))
+    if primer_parametro > segundo_parametro:
+        raise ValueError("El primer parámetro de integración debe ser menor o igual que el segundo")
+    integral, error = quad(distribucion_normal, primer_parametro, segundo_parametro, args=(mu, sigma))
     return integral
 def distribucion_poisson(lambda_, k):
     return (lambda_ ** k) * (math.e ** (-lambda_)) / math.factorial(k)
@@ -214,22 +216,24 @@ def menu_distribuciones():
                 resultado = distribucion_hipergeometrica(n, M, N, k)
                 print(f"La probabilidad de seleccionar {k} elementos favorables en {n} ensayos de un conjunto de {N} elementos con {M} favorables es {resultado:.4f}.")
             elif opcion == 3:
-                mu = float(input("Ingrese la media (μ): "))
-                sigma = float(input("Ingrese la desviación estándar (σ > 0): "))
-                x = float(input("Ingrese el valor de x para el cual desea calcular la función de densidad: "))
-                # Calcular la función de densidad
-                resultado = distribucion_normal(x, mu, sigma)
-                # Pedir los límites de integración para calcular la integral
-                primer_parametro = float(input("Ingrese el primer parámetro de integración: "))
-                segundo_parametro = float(input("Ingrese el segundo parámetro de integración: "))
-    
-                # Calcular la integral
-                resultado_integral = calcular_integral(mu, sigma, primer_parametro, segundo_parametro)
-                # Mostrar el resultado en una tabla
-                print(tabulate([["DENSIDAD NORMAL", resultado],
-                                ["INTEGRAL", resultado_integral]], 
-                                headers=["Operación", "Resultado"], 
-                                tablefmt="grid"))
+                # Leer parámetros de entrada
+                    mu = float(input("Ingrese la media (μ): "))
+                    sigma = float(input("Ingrese la desviación estándar (σ > 0): "))
+                    if sigma <= 0:
+                        raise ValueError("La desviación estándar debe ser mayor que 0")
+                    x = float(input("Ingrese el valor de x para el cual desea calcular la función de densidad: "))
+                    # Calcular la función de densidad
+                    resultado = distribucion_normal(x, mu, sigma)
+                    # Pedir los límites de integración para calcular la integral
+                    primer_parametro = float(input("Ingrese el primer parámetro de integración: "))
+                    segundo_parametro = float(input("Ingrese el segundo parámetro de integración: "))
+                    # Calcular la integral
+                    resultado_integral = calcular_integral(mu, sigma, primer_parametro, segundo_parametro)
+                    # Mostrar el resultado en una tabla
+                    print(tabulate([["DENSIDAD NORMAL", resultado],
+                                    ["INTEGRAL", resultado_integral]], 
+                                    headers=["Operación", "Resultado"], 
+                                    tablefmt="grid"))                   
             elif opcion == 4:
                 lambda_ = float(input("Ingrese la tasa de llegada (λ): "))
                 k = int(input("Ingrese el número de eventos (k): "))
