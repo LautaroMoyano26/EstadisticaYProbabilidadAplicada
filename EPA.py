@@ -5,6 +5,7 @@ import statistics
 import math
 
     # Funciones estadísticas.
+    
 
 def calcular_media(lista):
         return round(statistics.mean(lista), 4)
@@ -81,9 +82,18 @@ def frecuencia_porcentual_acumulada(lista):
             frec_porcent_acum[clave] = f"{round(acumulado, 4)}%"
         return frec_porcent_acum
 
+def factorial(x):
+    if x == 0 or x == 1:
+        return 1
+    else:
+        result = 1
+        for i in range(2, x+1):
+            result *= i
+        return result
+    
     # Función para calcular combinaciones C(n, k)
 def combinacion(n, k):
-        return math.factorial(n) // (math.factorial(k) * math.factorial(n - k))
+        return factorial(n) // (factorial(k) * factorial(n - k))
 
     # Función para la distribución binomial
 def distribucion_binomial(n, p, k):
@@ -93,7 +103,7 @@ def distribucion_binomial(n, p, k):
 
     # Función para la distribución de Poisson
 def distribucion_poisson(lambd, k):
-        probabilidad = (lambd ** k) * (math.e ** -lambd) / math.factorial(k)
+        probabilidad = (lambd ** k) * (math.e ** -lambd) / factorial(k)
         return probabilidad
 
     # Función para la distribución hipergeométrica
@@ -113,16 +123,28 @@ def calcular_integral(mu, sigma, primer_parametro, segundo_parametro):
         raise ValueError("El primer parámetro de integración debe ser menor o igual que el segundo")
     integral, error = quad(distribucion_normal, primer_parametro, segundo_parametro, args=(mu, sigma))
     return integral
-def coeficiente_curtosis(lista):
-        n = len(lista)
-        media = calcular_media(lista)
-        desviacion = calcular_desviacion(lista)
-        suma_cuarta_potencia = 0
-        for x in lista:
-            suma_cuarta_potencia += (x - media) ** 4
-        curtosis = (n * suma_cuarta_potencia) / ((n - 1) * (desviacion ** 4))
-        curtosis = curtosis - 3
-        return round(curtosis, 4)
+
+def coeficiente_curtosis(lista):    
+    n = len(lista)  
+    media = calcular_media(lista)
+    desviacion = calcular_desviacion(lista)
+    
+    suma_cuarta_potencia = sum((x - media) ** 4 for x in lista)
+
+    curtosis = (n * (n + 1) * suma_cuarta_potencia) / ((n - 1) * (n - 2) * (n - 3) * (desviacion ** 4)) \
+               - (3 * (n - 1) ** 2) / ((n - 2) * (n - 3))
+    
+    if curtosis == 0:
+        print("La distribución es mesocúrtica")
+        interpretación= "La distribucion es mesocúrtica"
+    if curtosis > 0:
+        print("La distribución es leptocúrtica")
+        interpretación= "La distribucion es leptocúrtica"
+    if curtosis < 0:
+        print("La distribución es platicúrtica")
+        interpretación= "La distribucion es platicúrtica"
+        
+    return round(curtosis, 4), interpretación
 
 def menu_estadistico(numeros):
         while True:
@@ -370,7 +392,7 @@ def menu_distribuciones():
                     if sigma <= 0:
                         raise ValueError("La desviación estándar debe ser mayor que 0")
                     x = float(input("Ingrese el valor de x: "))
-
+                    
                     tipo_distribucion = input("¿Desea calcular la probabilidad para x <= valor, x >= valor o x = valor? (menor que, mayor que, igual a): ")
 
                     if tipo_distribucion == "menor que":
@@ -395,10 +417,10 @@ def menu_distribuciones():
                         resultado = distribucion_normal(x, mu, sigma)
                         print(f"P(x = {x}) = {resultado:.4f}")
         
-                        sumar_probabilidades = input("¿Desea sumar las probabilidades? (si/no): ")
-                        if sumar_probabilidades.lower() == "si":
-                            probabilidad_acumulada = resultado
-                            print(f"P(x = {x}) = {probabilidad_acumulada:.4f}")
+                        #sumar_probabilidades = input("¿Desea sumar las probabilidades? (si/no): ")
+                        #if sumar_probabilidades.lower() == "si":
+                            #probabilidad_acumulada = resultado
+                            #print(f"P(x = {x}) = {probabilidad_acumulada:.4f}")
     
                     else:
                         raise ValueError("Opción de distribución no válida.")
