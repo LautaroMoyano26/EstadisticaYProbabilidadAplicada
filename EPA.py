@@ -1,5 +1,5 @@
 import scipy.integrate as integrate
-from scipy.stats import quad
+from scipy.integrate import quad
 from tabulate import tabulate
 import statistics
 import math
