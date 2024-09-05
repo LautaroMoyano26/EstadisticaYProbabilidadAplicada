@@ -393,34 +393,15 @@ def menu_distribuciones():
                         raise ValueError("La desviación estándar debe ser mayor que 0")
                     x = float(input("Ingrese el valor de x: "))
                     
-                    tipo_distribucion = input("¿Desea calcular la probabilidad para x <= valor, x >= valor o x = valor? (menor que, mayor que, igual a): ")
+                    tipo_distribucion = input("¿Desea calcular la probabilidad para x menor que infinito o x mayor que infinito? (escriba menor que o mayor que): ")
 
                     if tipo_distribucion == "menor que":
                         resultado = calcular_integral(mu, sigma, -float('inf'), x)
                         print(f"P(x ≤ {x}) = {resultado:.4f}")
-        
-                        sumar_probabilidades = input("¿Desea sumar las probabilidades? (si/no): ")
-                        if sumar_probabilidades.lower() == "si":
-                            probabilidad_acumulada = resultado
-                            print(f"P(x ≤ {x}) = {probabilidad_acumulada:.4f}")
     
                     elif tipo_distribucion == "mayor que":
                         resultado = calcular_integral(mu, sigma, x, float('inf'))
                         print(f"P(x ≥ {x}) = {resultado:.4f}")
-        
-                        sumar_probabilidades = input("¿Desea sumar las probabilidades? (si/no): ")
-                        if sumar_probabilidades.lower() == "si":
-                            probabilidad_acumulada = resultado
-                            print(f"P(x ≥ {x}) = {probabilidad_acumulada:.4f}")
-    
-                    elif tipo_distribucion == "igual a":
-                        resultado = distribucion_normal(x, mu, sigma)
-                        print(f"P(x = {x}) = {resultado:.4f}")
-        
-                        #sumar_probabilidades = input("¿Desea sumar las probabilidades? (si/no): ")
-                        #if sumar_probabilidades.lower() == "si":
-                            #probabilidad_acumulada = resultado
-                            #print(f"P(x = {x}) = {probabilidad_acumulada:.4f}")
     
                     else:
                         raise ValueError("Opción de distribución no válida.")
