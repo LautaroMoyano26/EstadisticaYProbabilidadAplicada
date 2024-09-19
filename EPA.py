@@ -136,13 +136,13 @@ def coeficiente_curtosis(lista):
     
     if curtosis == 0:
         print("La distribución es mesocúrtica")
-        interpretación= "La distribucion es mesocúrtica"
+        interpretación= "La distribución es mesocúrtica"
     if curtosis > 0:
         print("La distribución es leptocúrtica")
-        interpretación= "La distribucion es leptocúrtica"
+        interpretación= "La distribución es leptocúrtica"
     if curtosis < 0:
         print("La distribución es platicúrtica")
-        interpretación= "La distribucion es platicúrtica"
+        interpretación= "La distribución es platicúrtica"
         
     return round(curtosis, 4), interpretación
 
